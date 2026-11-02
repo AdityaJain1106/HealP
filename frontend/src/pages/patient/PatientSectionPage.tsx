@@ -1,3 +1,4 @@
+
 import {
   Activity,
   Bot,
@@ -8,14 +9,12 @@ import {
   Pill,
   Droplets,
   FlaskConical,
-  MapPin,
-  Search,
-  ArrowUpRight,
 } from 'lucide-react'
 
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
 import PageContainer from '../../components/common/PageContainer'
+import NearbyHealthcareDiscovery from '../../components/patient/NearbyHealthcareDiscovery'
 
 type PatientSection =
   | 'health'
@@ -123,23 +122,22 @@ const sectionConfig = {
   }
 >
 
-const isServiceSection = (
-  section: PatientSection,
-): boolean => {
-  return [
-    'hospitals',
-    'pharmacies',
-    'bloodBanks',
-    'diagnostics',
-  ].includes(section)
-}
+const serviceCategories = [
+  'hospitals',
+  'pharmacies',
+  'bloodBanks',
+  'diagnostics',
+] as const
 
 function PatientSectionPage({
   section,
 }: PatientSectionPageProps) {
   const config = sectionConfig[section]
   const Icon = config.icon
-  const isService = isServiceSection(section)
+
+  const isService = (
+    serviceCategories as readonly string[]
+  ).includes(section)
 
   return (
     <PageContainer size="full">
@@ -157,69 +155,26 @@ function PatientSectionPage({
         </p>
       </div>
 
-      <Card padding="lg" className="max-w-3xl">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
-          <Icon size={28} />
-        </div>
+      {isService ? (
+        <NearbyHealthcareDiscovery
+          category={section as (
+            typeof serviceCategories
+          )[number]}
+        />
+      ) : (
+        <Card padding="lg" className="max-w-3xl">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
+            <Icon size={28} />
+          </div>
 
-        <h2 className="mt-5 text-xl font-semibold text-slate-900">
-          {config.message}
-        </h2>
+          <h2 className="mt-5 text-xl font-semibold text-slate-900">
+            {config.message}
+          </h2>
 
-        <p className="mt-2 text-sm leading-6 text-slate-500">
-          {config.detail}
-        </p>
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            {config.detail}
+          </p>
 
-        {isService ? (
-          <>
-            <div className="mt-6 rounded-xl border border-primary-100 bg-primary-50/50 p-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-primary-700">
-                <MapPin size={18} />
-                Location-based discovery
-              </div>
-
-              <p className="mt-2 text-xs leading-5 text-slate-600">
-                Nearby facility listings and location-based search
-                will be available after the discovery service is
-                integrated.
-              </p>
-            </div>
-
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                <Search
-                  size={20}
-                  className="text-primary-600"
-                />
-
-                <h3 className="mt-3 text-sm font-semibold text-slate-800">
-                  Search Facilities
-                </h3>
-
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Search functionality will be connected in a
-                  future implementation.
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                <ArrowUpRight
-                  size={20}
-                  className="text-primary-600"
-                />
-
-                <h3 className="mt-3 text-sm font-semibold text-slate-800">
-                  Explore Nearby
-                </h3>
-
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Nearby facility results will appear here once
-                  location services are integrated.
-                </p>
-              </div>
-            </div>
-          </>
-        ) : (
           <div className="mt-6 rounded-xl bg-slate-50 p-4">
             <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
               <HeartPulse size={18} className="text-primary-600" />
@@ -232,8 +187,8 @@ function PatientSectionPage({
               authentication layers are implemented.
             </p>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
     </PageContainer>
   )
 }
