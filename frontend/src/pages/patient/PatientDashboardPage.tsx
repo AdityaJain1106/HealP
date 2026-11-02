@@ -19,6 +19,14 @@ import {
 } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { useEffect, useState } from 'react'
+import {
+  getPatientProfile,
+} from '../../services/patientProfileService'
+import type {
+  PatientProfile,
+} from '../../services/patientProfileService'
 
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
@@ -28,6 +36,40 @@ import { ROUTES } from '../../routes/routePaths'
 
 function PatientDashboardPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+
+  const patientName =
+    user?.displayName?.trim() ||
+    user?.email?.split('@')[0] ||
+    'there'
+
+  const [patientProfile, setPatientProfile] =
+    useState<PatientProfile | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+
+    const uid = user.uid
+    let cancelled = false
+
+    async function loadProfile() {
+      try {
+        const data = await getPatientProfile(uid)
+
+        if (!cancelled) {
+          setPatientProfile(data)
+        }
+      } catch (error) {
+        console.error('Unable to load dashboard profile:', error)
+      }
+    }
+
+    loadProfile()
+
+    return () => {
+      cancelled = true
+    }
+  }, [user])
 
   const currentDate = new Intl.DateTimeFormat('en-IN', {
     weekday: 'long',
@@ -163,7 +205,7 @@ function PatientDashboardPage() {
   const emergencyDetails = [
     {
       title: 'Blood Group',
-      value: 'Not provided',
+      value: patientProfile?.bloodGroup || 'Not provided',
       description: 'Your blood group information',
       icon: Droplets,
       iconColor: 'text-rose-600',
@@ -171,7 +213,9 @@ function PatientDashboardPage() {
     },
     {
       title: 'Allergies',
-      value: 'Not provided',
+      value: patientProfile?.allergies?.length
+        ? patientProfile.allergies.join(', ')
+        : 'Not provided',
       description: 'Known allergies and reactions',
       icon: AlertCircle,
       iconColor: 'text-amber-600',
@@ -179,7 +223,10 @@ function PatientDashboardPage() {
     },
     {
       title: 'Emergency Contact',
-      value: 'Not provided',
+      value: patientProfile?.emergencyContactName
+        ? `${patientProfile.emergencyContactName} ${patientProfile.emergencyContactPhone || ''
+        }`
+        : 'Not provided',
       description: 'Person to contact in an emergency',
       icon: Phone,
       iconColor: 'text-blue-600',
@@ -200,7 +247,7 @@ function PatientDashboardPage() {
             </p>
 
             <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
-              Welcome back! 👋
+              Welcome back, {patientName}! 👋
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
