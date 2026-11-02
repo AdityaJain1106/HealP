@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
 import {
   MapContainer,
   TileLayer,
@@ -8,7 +9,9 @@ import {
   Circle,
   useMap,
 } from 'react-leaflet'
+
 import L from 'leaflet'
+
 import {
   MapPin,
   Navigation,
@@ -20,6 +23,11 @@ import {
   AlertCircle,
   LoaderCircle,
   LocateFixed,
+  ArrowLeft,
+  Globe,
+  Building2,
+  MapPinned,
+  CheckCircle2,
 } from 'lucide-react'
 
 import 'leaflet/dist/leaflet.css'
@@ -135,16 +143,16 @@ const createUserIcon = () =>
     iconAnchor: [9, 9],
   })
 
-const createFacilityIcon = () =>
+const createFacilityIcon = (selected = false) =>
   L.divIcon({
     className: 'healp-facility-marker',
     html: `
       <div style="
-        width: 30px;
-        height: 30px;
+        width: ${selected ? 36 : 30}px;
+        height: ${selected ? 36 : 30}px;
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
-        background: #10b981;
+        background: ${selected ? '#2563eb' : '#10b981'};
         border: 2px solid white;
         box-shadow: 0 2px 8px rgba(0,0,0,0.25);
       ">
@@ -152,18 +160,19 @@ const createFacilityIcon = () =>
           transform: rotate(45deg);
           color: white;
           text-align: center;
-          line-height: 26px;
+          line-height: ${selected ? 32 : 26}px;
           font-size: 15px;
           font-weight: bold;
         ">+</div>
       </div>
     `,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
+    iconSize: [selected ? 36 : 30, selected ? 36 : 30],
+    iconAnchor: [selected ? 18 : 15, selected ? 36 : 30],
   })
 
 const userIcon = createUserIcon()
 const facilityIcon = createFacilityIcon()
+const selectedFacilityIcon = createFacilityIcon(true)
 
 function calculateDistance(
   first: Coordinates,
@@ -218,6 +227,12 @@ function getMapsUrl(facility: HealthcareFacility): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${facility.lat},${facility.lon}`
 }
 
+function getWebsiteUrl(website: string): string {
+  return website.startsWith('http')
+    ? website
+    : `https://${website}`
+}
+
 function getOverpassQuery(
   category: ServiceCategory,
   coordinates: Coordinates,
@@ -235,6 +250,15 @@ function getOverpassQuery(
   `
 }
 
+/**
+ * Original working discovery implementation.
+ *
+ * Important:
+ * - Uses the original POST request.
+ * - Uses the original parent AbortSignal directly.
+ * - Does not introduce a forced request timeout.
+ * - Tries the next endpoint when the current endpoint fails.
+ */
 async function fetchFacilities(
   category: ServiceCategory,
   coordinates: Coordinates,
@@ -263,57 +287,53 @@ async function fetchFacilities(
 
       const data = (await response.json()) as OverpassResponse
 
-      // Explicitly build a HealthcareFacility[].
-      // Invalid elements are skipped instead of introducing null
-      // into the resulting array.
+      const facilities = data.elements.reduce<HealthcareFacility[]>(
+        (results, element) => {
+          const tags = element.tags ?? {}
 
-      const facilities = data.elements.reduce<
-        HealthcareFacility[]
-      >((results, element) => {
-        const tags = element.tags ?? {}
+          const lat = element.lat ?? element.center?.lat
+          const lon = element.lon ?? element.center?.lon
 
-        const lat = element.lat ?? element.center?.lat
-        const lon = element.lon ?? element.center?.lon
+          if (
+            typeof lat !== 'number' ||
+            typeof lon !== 'number'
+          ) {
+            return results
+          }
 
-        if (
-          typeof lat !== 'number' ||
-          typeof lon !== 'number'
-        ) {
+          const distance = calculateDistance(
+            coordinates,
+            { lat, lon },
+          )
+
+          const facility: HealthcareFacility = {
+            id: `${element.type}-${element.id}`,
+            name:
+              tags.name ||
+              tags['name:en'] ||
+              'Unnamed facility',
+            lat,
+            lon,
+            address: getFacilityAddress(tags),
+            phone:
+              tags.phone ||
+              tags['contact:phone'] ||
+              undefined,
+            openingHours: tags.opening_hours || undefined,
+            website:
+              tags.website ||
+              tags['contact:website'] ||
+              undefined,
+            distance,
+            tags,
+          }
+
+          results.push(facility)
+
           return results
-        }
-
-        const distance = calculateDistance(
-          coordinates,
-          { lat, lon },
-        )
-
-        const facility: HealthcareFacility = {
-          id: `${element.type}-${element.id}`,
-          name:
-            tags.name ||
-            tags['name:en'] ||
-            'Unnamed facility',
-          lat,
-          lon,
-          address: getFacilityAddress(tags),
-          phone:
-            tags.phone ||
-            tags['contact:phone'] ||
-            undefined,
-          openingHours:
-            tags.opening_hours || undefined,
-          website:
-            tags.website ||
-            tags['contact:website'] ||
-            undefined,
-          distance,
-          tags,
-        }
-
-        results.push(facility)
-
-        return results
-      }, [])
+        },
+        [],
+      )
 
       return facilities.sort(
         (a, b) => a.distance - b.distance,
@@ -348,14 +368,173 @@ function MapViewport({
   const map = useMap()
 
   useEffect(() => {
-    map.setView(
+    map.flyTo(
       [coordinates.lat, coordinates.lon],
-      14,
-      { animate: true },
+      16,
+      {
+        animate: true,
+        duration: 0.8,
+      },
     )
   }, [coordinates, map])
 
   return null
+}
+
+function FacilityDetails({
+  facility,
+  category,
+  onBack,
+}: {
+  facility: HealthcareFacility
+  category: ServiceCategory
+  onBack: () => void
+}) {
+  const details = [
+    {
+      label: 'Address',
+      value: facility.address,
+      icon: MapPin,
+    },
+    {
+      label: 'Distance from you',
+      value: formatDistance(facility.distance),
+      icon: Navigation,
+    },
+    {
+      label: 'Phone number',
+      value: facility.phone || 'Not available',
+      icon: Phone,
+    },
+    {
+      label: 'Opening hours',
+      value: facility.openingHours || 'Not available',
+      icon: Clock,
+    },
+    {
+      label: 'Website',
+      value: facility.website || 'Not available',
+      icon: Globe,
+    },
+  ]
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+            <Building2 size={24} />
+          </div>
+
+          <div>
+            <span className="text-xs font-medium text-primary-600">
+              {categoryConfig[category].label}
+            </span>
+
+            <h3 className="mt-1 text-lg font-bold text-slate-900">
+              {facility.name}
+            </h3>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+        >
+          <ArrowLeft size={16} />
+          Back to results
+        </button>
+      </div>
+
+      <div className="p-5">
+        <div className="mb-5 flex items-center gap-2">
+          <CheckCircle2
+            size={17}
+            className="text-emerald-600"
+          />
+
+          <span className="text-xs font-medium text-slate-500">
+            Facility information from OpenStreetMap
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {details.map(({ label, value, icon: Icon }) => (
+            <div
+              key={label}
+              className="flex min-w-0 gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-primary-600">
+                <Icon size={18} />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-400">
+                  {label}
+                </p>
+
+                {label === 'Phone number' && facility.phone ? (
+                  <a
+                    href={`tel:${facility.phone}`}
+                    className="mt-1 block break-words text-sm font-medium text-primary-600 hover:underline"
+                  >
+                    {value}
+                  </a>
+                ) : label === 'Website' && facility.website ? (
+                  <a
+                    href={getWebsiteUrl(facility.website)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 block break-all text-sm font-medium text-primary-600 hover:underline"
+                  >
+                    {value}
+                  </a>
+                ) : (
+                  <p className="mt-1 break-words text-sm font-medium text-slate-700">
+                    {value}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 rounded-xl border border-primary-100 bg-primary-50/40 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <MapPinned
+              size={18}
+              className="text-primary-600"
+            />
+            Facility Location
+          </div>
+
+          <p className="mt-2 text-xs text-slate-500">
+            Latitude: {facility.lat.toFixed(6)}
+            <br />
+            Longitude: {facility.lon.toFixed(6)}
+          </p>
+
+          <a
+            href={getMapsUrl(facility)}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+          >
+            <Navigation size={16} />
+            Get Directions
+            <ExternalLink size={14} />
+          </a>
+        </div>
+
+        <p className="mt-5 text-xs leading-5 text-slate-400">
+          Information may be incomplete or outdated. Please
+          contact the facility directly to verify its services,
+          availability and opening hours before visiting.
+        </p>
+      </div>
+    </div>
+  )
 }
 
 function NearbyHealthcareDiscovery({
@@ -368,6 +547,9 @@ function NearbyHealthcareDiscovery({
 
   const [facilities, setFacilities] =
     useState<HealthcareFacility[]>([])
+
+  const [selectedFacility, setSelectedFacility] =
+    useState<HealthcareFacility | null>(null)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(false)
@@ -397,6 +579,7 @@ function NearbyHealthcareDiscovery({
       setLoading(true)
       setError('')
       setFacilities([])
+      setSelectedFacility(null)
       setHasSearched(true)
 
       try {
@@ -447,6 +630,7 @@ function NearbyHealthcareDiscovery({
 
         setCoordinates(currentCoordinates)
         setLocationLoading(false)
+
         void loadFacilities(currentCoordinates)
       },
       (locationError) => {
@@ -483,6 +667,7 @@ function NearbyHealthcareDiscovery({
   useEffect(() => {
     setFacilities([])
     setCoordinates(null)
+    setSelectedFacility(null)
     setSearchTerm('')
     setHasSearched(false)
     setError('')
@@ -493,16 +678,25 @@ function NearbyHealthcareDiscovery({
     ? [coordinates.lat, coordinates.lon]
     : [20.5937, 78.9629]
 
+  const mapFocus: Coordinates | null = selectedFacility
+    ? {
+        lat: selectedFacility.lat,
+        lon: selectedFacility.lon,
+      }
+    : null
+
   return (
     <div className="space-y-6">
-
       {/* SEARCH HEADER */}
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-              <MapPin size={18} className="text-primary-600" />
+              <MapPin
+                size={18}
+                className="text-primary-600"
+              />
               Discover nearby {config.label.toLowerCase()}
             </div>
 
@@ -563,9 +757,11 @@ function NearbyHealthcareDiscovery({
             </h3>
 
             <p className="mt-1 text-xs text-slate-500">
-              {coordinates
-                ? 'Showing your location and discovered facilities.'
-                : 'Enable location to explore nearby facilities.'}
+              {selectedFacility
+                ? `Viewing ${selectedFacility.name}`
+                : coordinates
+                  ? 'Showing your location and discovered facilities.'
+                  : 'Enable location to explore nearby facilities.'}
             </p>
           </div>
 
@@ -605,7 +801,9 @@ function NearbyHealthcareDiscovery({
 
             {coordinates && (
               <>
-                <MapViewport coordinates={coordinates} />
+                <MapViewport
+                  coordinates={mapFocus ?? coordinates}
+                />
 
                 <Marker
                   position={[
@@ -635,7 +833,14 @@ function NearbyHealthcareDiscovery({
                   <Marker
                     key={facility.id}
                     position={[facility.lat, facility.lon]}
-                    icon={facilityIcon}
+                    icon={
+                      selectedFacility?.id === facility.id
+                        ? selectedFacilityIcon
+                        : facilityIcon
+                    }
+                    eventHandlers={{
+                      click: () => setSelectedFacility(facility),
+                    }}
                   >
                     <Popup>
                       <div className="min-w-40">
@@ -645,13 +850,15 @@ function NearbyHealthcareDiscovery({
                           {formatDistance(facility.distance)} away
                         </p>
 
-                        <a
-                          href={getMapsUrl(facility)}
-                          target="_blank"
-                          rel="noreferrer"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSelectedFacility(facility)
+                          }
+                          className="mt-2 text-xs font-semibold text-blue-600"
                         >
-                          Get directions
-                        </a>
+                          View details
+                        </button>
                       </div>
                     </Popup>
                   </Marker>
@@ -681,6 +888,16 @@ function NearbyHealthcareDiscovery({
         </div>
       </div>
 
+      {/* SELECTED FACILITY DETAILS */}
+
+      {selectedFacility && (
+        <FacilityDetails
+          facility={selectedFacility}
+          category={category}
+          onBack={() => setSelectedFacility(null)}
+        />
+      )}
+
       {/* RESULTS */}
 
       <div className="space-y-4">
@@ -708,9 +925,10 @@ function NearbyHealthcareDiscovery({
             <input
               type="search"
               value={searchTerm}
-              onChange={(event) =>
+              onChange={(event) => {
                 setSearchTerm(event.target.value)
-              }
+                setSelectedFacility(null)
+              }}
               placeholder="Search by facility name..."
               className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
             />
@@ -753,10 +971,18 @@ function NearbyHealthcareDiscovery({
           filteredFacilities.map((facility) => (
             <div
               key={facility.id}
-              className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-primary-200 hover:shadow-sm sm:p-5"
+              className={`rounded-xl border bg-white p-4 transition sm:p-5 ${
+                selectedFacility?.id === facility.id
+                  ? 'border-primary-400 shadow-sm'
+                  : 'border-slate-200 hover:border-primary-200 hover:shadow-sm'
+              }`}
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex min-w-0 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedFacility(facility)}
+                  className="flex min-w-0 flex-1 gap-3 text-left"
+                >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                     <MapPin size={21} />
                   </div>
@@ -777,13 +1003,10 @@ function NearbyHealthcareDiscovery({
                       </span>
 
                       {facility.phone && (
-                        <a
-                          href={`tel:${facility.phone}`}
-                          className="flex items-center gap-1 text-xs text-slate-500 hover:text-primary-600"
-                        >
+                        <span className="flex items-center gap-1 text-xs text-slate-500">
                           <Phone size={13} />
                           {facility.phone}
-                        </a>
+                        </span>
                       )}
 
                       {facility.openingHours && (
@@ -793,8 +1016,16 @@ function NearbyHealthcareDiscovery({
                         </span>
                       )}
                     </div>
+
+                    <span className="mt-3 inline-flex text-xs font-semibold text-primary-600">
+                      View facility details
+                      <ExternalLink
+                        size={13}
+                        className="ml-1"
+                      />
+                    </span>
                   </div>
-                </div>
+                </button>
 
                 <div className="flex shrink-0 flex-wrap gap-2 sm:flex-col">
                   <a
@@ -809,11 +1040,7 @@ function NearbyHealthcareDiscovery({
 
                   {facility.website && (
                     <a
-                      href={
-                        facility.website.startsWith('http')
-                          ? facility.website
-                          : `https://${facility.website}`
-                      }
+                      href={getWebsiteUrl(facility.website)}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
@@ -834,8 +1061,8 @@ function NearbyHealthcareDiscovery({
         <p className="text-xs leading-5 text-slate-500">
           Facility information is sourced from OpenStreetMap.
           Listings may be incomplete or outdated. Always verify
-          availability, operating hours and medical services directly
-          with the facility before visiting.
+          availability, operating hours and medical services
+          directly with the facility before visiting.
         </p>
       </div>
     </div>
