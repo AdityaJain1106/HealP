@@ -1,13 +1,15 @@
 
-import {
-  HeartPulse,
-} from 'lucide-react'
+import { HeartPulse } from 'lucide-react'
 
 import Badge from '../../components/common/Badge'
 import PageContainer from '../../components/common/PageContainer'
 
+import AIChatAssistant from '../../components/patient/AIChatAssistant'
 import PrescriptionReader from '../../components/patient/PrescriptionReader'
 import MedicalSummary from '../../components/patient/MedicalSummary'
+import MedicineAssistant from '../../components/patient/MedicineAssistant'
+import SymptomChecker from '../../components/patient/SymptomChecker'
+
 import PatientProfilePage from './PatientProfilePage'
 import PatientHealthPage from './PatientHealthPage'
 import PatientReportsPage from './PatientReportsPage'
@@ -17,6 +19,11 @@ import NearbyHealthcareDiscovery from '../../components/patient/NearbyHealthcare
 export type PatientSection =
   | 'health'
   | 'ai'
+  | 'ai-summary'
+  | 'ai-chat'
+  | 'ai-medicine'
+  | 'ai-symptoms'
+  | 'ai-prescriptions'
   | 'reports'
   | 'profile'
   | 'hospitals'
@@ -48,52 +55,82 @@ const healthcareSectionConfig = {
 }
 
 function PatientSectionPage({ section }: PatientSectionPageProps) {
+  // Patient profile
   if (section === 'profile') {
     return <PatientProfilePage />
   }
 
+  // Medical history
   if (section === 'health') {
     return <PatientHealthPage />
   }
 
+  // Reports and documents
   if (section === 'reports') {
     return <PatientReportsPage />
   }
 
-  // AI Health Assistant
+  // AI Medical Summary
+  if (section === 'ai-summary') {
+    return (
+      <PageContainer size="full">
+        <div className="mt-6">
+          <MedicalSummary />
+        </div>
+      </PageContainer>
+    )
+  }
+
+  // AI Chat Assistant
+  if (section === 'ai-chat') {
+    return (
+      <PageContainer size="full">
+        <div className="mt-6">
+          <AIChatAssistant />
+        </div>
+      </PageContainer>
+    )
+  }
+
+  // AI Medicine Assistant
+  if (section === 'ai-medicine') {
+    return (
+      <PageContainer size="full">
+        <div className="mt-6">
+          <MedicineAssistant />
+        </div>
+      </PageContainer>
+    )
+  }
+
+  // AI Symptom Checker
+  if (section === 'ai-symptoms') {
+    return (
+      <PageContainer size="full">
+        <div className="mt-6">
+          <SymptomChecker />
+        </div>
+      </PageContainer>
+    )
+  }
+
+  // AI Prescription Reader
+  if (section === 'ai-prescriptions') {
+    return (
+      <PageContainer size="full">
+        <div className="mt-6">
+          <PrescriptionReader />
+        </div>
+      </PageContainer>
+    )
+  }
+
+  // Legacy AI route: show Medical Summary instead of the old combined page.
   if (section === 'ai') {
     return (
       <PageContainer size="full">
-        <div className="mb-8">
-          <Badge variant="success" dot>
-            AI Assistant
-          </Badge>
-
-          <h1 className="mt-4 text-3xl font-bold text-slate-900">
-            AI Health Assistant
-          </h1>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Understand your health records and prescriptions with AI assistance.
-          </p>
-        </div>
-
-        <div className="space-y-8">
+        <div className="mt-6">
           <MedicalSummary />
-
-          <div>
-            <div className="mb-5">
-              <h2 className="text-xl font-bold text-slate-900">
-                AI Prescription Reader
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Extract and review information from your prescription images.
-              </p>
-            </div>
-
-            <PrescriptionReader />
-          </div>
         </div>
       </PageContainer>
     )

@@ -1,4 +1,6 @@
-import { NavLink } from 'react-router-dom'
+
+import { useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 
 import {
   HeartPulse,
@@ -6,9 +8,14 @@ import {
   Activity,
   Bot,
   FileText,
-  UserRound,
   ShieldCheck,
   X,
+  ChevronDown,
+  ClipboardList,
+  MessageCircle,
+  Pill,
+  Stethoscope,
+  FileSearch,
 } from 'lucide-react'
 
 import { ROUTES } from '../../routes/routePaths'
@@ -31,19 +38,37 @@ const navigation = [
     path: ROUTES.PATIENT_HEALTH,
   },
   {
-    label: 'AI Health Assistant',
-    icon: Bot,
-    path: ROUTES.PATIENT_AI,
-  },
-  {
     label: 'Reports & Documents',
     icon: FileText,
     path: ROUTES.PATIENT_REPORTS,
   },
+]
+
+const aiTools = [
   {
-    label: 'Profile',
-    icon: UserRound,
-    path: ROUTES.PATIENT_PROFILE,
+    label: 'AI Medical Summary',
+    icon: ClipboardList,
+    path: `${ROUTES.PATIENT_AI}/summary`,
+  },
+  {
+    label: 'AI Chat Assistant',
+    icon: MessageCircle,
+    path: `${ROUTES.PATIENT_AI}/chat`,
+  },
+  {
+    label: 'AI Medicine Assistant',
+    icon: Pill,
+    path: `${ROUTES.PATIENT_AI}/medicine`,
+  },
+  {
+    label: 'AI Symptom Checker',
+    icon: Stethoscope,
+    path: `${ROUTES.PATIENT_AI}/symptoms`,
+  },
+  {
+    label: 'AI Prescription Reader',
+    icon: FileSearch,
+    path: `${ROUTES.PATIENT_AI}/prescriptions`,
   },
 ]
 
@@ -51,32 +76,37 @@ function PatientSidebar({
   mobile = false,
   onClose,
 }: PatientSidebarProps) {
+  const location = useLocation()
+
+  const isAISection = location.pathname.startsWith(ROUTES.PATIENT_AI)
+
+  const [aiMenuOpen, setAiMenuOpen] = useState(isAISection)
+
+  const closeMobileNavigation = () => {
+    if (mobile) onClose?.()
+  }
+
   return (
     <aside
       className={[
         'w-64 shrink-0 border-r border-border bg-white',
-        'flex flex-col',
+        'flex flex-col overflow-y-auto',
         mobile
           ? 'h-full shadow-2xl'
-          : 'hidden lg:flex',
+          : 'hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:h-screen',
       ].join(' ')}
     >
       {/* BRAND */}
 
-      <div className="flex h-20 items-center justify-between border-b border-border px-6">
+      <div className="flex h-20 shrink-0 items-center justify-between border-b border-border px-6">
         <div className="flex items-center gap-3">
           <div className="rounded-xl bg-primary-600 p-2.5 text-white">
             <HeartPulse size={25} />
           </div>
 
           <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              HealP
-            </h1>
-
-            <p className="text-xs text-slate-400">
-              Digital Healthcare
-            </p>
+            <h1 className="text-xl font-bold text-slate-900">HealP</h1>
+            <p className="text-xs text-slate-400">Digital Healthcare</p>
           </div>
         </div>
 
@@ -94,18 +124,18 @@ function PatientSidebar({
 
       {/* NAVIGATION */}
 
-      <div className="px-4 py-7">
+      <div className="shrink-0 px-4 py-7">
         <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
           Patient Portal
         </p>
 
         <nav aria-label="Patient navigation" className="space-y-1">
-          {navigation.map(({ label, icon: Icon, path, end }) => (
+          {navigation.slice(0, 2).map(({ label, icon: Icon, path, end }) => (
             <NavLink
               key={path}
               to={path}
               end={end}
-              onClick={mobile ? onClose : undefined}
+              onClick={closeMobileNavigation}
               className={({ isActive }) =>
                 [
                   'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
@@ -118,9 +148,7 @@ function PatientSidebar({
               {({ isActive }) => (
                 <>
                   <Icon size={19} />
-
                   <span>{label}</span>
-
                   {isActive && (
                     <span className="ml-auto h-2 w-2 rounded-full bg-primary-600" />
                   )}
@@ -128,12 +156,82 @@ function PatientSidebar({
               )}
             </NavLink>
           ))}
+
+          {/* AI HEALTH ASSISTANT MENU */}
+
+          <div
+            onMouseEnter={() => setAiMenuOpen(true)}
+            onMouseLeave={() => {
+              if (!isAISection) setAiMenuOpen(false)
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setAiMenuOpen((previous) => !previous)}
+              aria-expanded={aiMenuOpen}
+              className={[
+                'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+                isAISection
+                  ? 'bg-primary-50 text-primary-700'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800',
+              ].join(' ')}
+            >
+              <Bot size={19} />
+              <span className="flex-1 text-left">AI Health Assistant</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform ${aiMenuOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {aiMenuOpen && (
+              <div className="ml-4 mt-1 space-y-1 border-l-2 border-blue-100 pl-3">
+                {aiTools.map(({ label, icon: Icon, path }) => (
+                  <NavLink
+                    key={path}
+                    to={path}
+                    onClick={closeMobileNavigation}
+                    className={({ isActive }) =>
+                      [
+                        'flex items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium transition-colors',
+                        isActive
+                          ? 'bg-primary-50 text-primary-700'
+                          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800',
+                      ].join(' ')
+                    }
+                  >
+                    <Icon size={16} />
+                    <span>{label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {navigation.slice(2).map(({ label, icon: Icon, path }) => (
+            <NavLink
+              key={path}
+              to={path}
+              onClick={closeMobileNavigation}
+              className={({ isActive }) =>
+                [
+                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800',
+                ].join(' ')
+              }
+            >
+              <Icon size={19} />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
       </div>
 
       {/* SECURITY CARD */}
 
-      <div className="mt-auto p-4">
+      <div className="mt-auto shrink-0 p-4">
         <div className="rounded-2xl bg-primary-50 p-4">
           <ShieldCheck className="text-primary-600" size={24} />
 

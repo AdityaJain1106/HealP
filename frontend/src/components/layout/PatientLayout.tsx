@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
@@ -17,9 +18,7 @@ function PatientLayout() {
 
   // Close drawer whenever the user presses Escape.
   useEffect(() => {
-    if (!mobileMenuOpen) {
-      return
-    }
+    if (!mobileMenuOpen) return
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -36,9 +35,7 @@ function PatientLayout() {
 
   // Prevent background scrolling while mobile navigation is open.
   useEffect(() => {
-    if (!mobileMenuOpen) {
-      return
-    }
+    if (!mobileMenuOpen) return
 
     const previousOverflow = document.body.style.overflow
 
@@ -50,16 +47,16 @@ function PatientLayout() {
   }, [mobileMenuOpen])
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="relative isolate min-h-screen bg-background">
 
-      {/* DESKTOP SIDEBAR */}
+      {/* FIXED DESKTOP SIDEBAR */}
 
       <PatientSidebar />
 
       {/* MOBILE NAVIGATION DRAWER */}
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-[9999] lg:hidden">
 
           {/* BACKDROP */}
 
@@ -67,13 +64,13 @@ function PatientLayout() {
             type="button"
             aria-label="Close navigation menu"
             onClick={closeMobileMenu}
-            className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px]"
+            className="absolute inset-0 z-0 bg-slate-950/40 backdrop-blur-[2px]"
           />
 
           {/* DRAWER */}
 
           <div
-            className="absolute inset-y-0 left-0 animate-in slide-in-from-left duration-200"
+            className="absolute inset-y-0 left-0 z-10 animate-in slide-in-from-left duration-200"
             role="dialog"
             aria-modal="true"
             aria-label="Patient navigation menu"
@@ -89,14 +86,14 @@ function PatientLayout() {
 
       {/* MAIN APPLICATION AREA */}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative z-0 min-w-0 lg:ml-64">
 
         <PatientTopbar
           patientName="Patient"
           onMenuClick={openMobileMenu}
         />
 
-        <main className="min-w-0 flex-1">
+        <main className="relative z-0 min-w-0">
           <Outlet />
         </main>
 

@@ -27,7 +27,7 @@ import {
 import type {
   PatientProfile,
 } from '../../services/patientProfileService'
-
+import PrescriptionUploadDialog from '../../components/patient/PrescriptionUploadDialog'
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
 import Button from '../../components/common/Button'
@@ -37,6 +37,7 @@ import { ROUTES } from '../../routes/routePaths'
 function PatientDashboardPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [showPrescriptionUpload, setShowPrescriptionUpload] = useState(false)
 
   const patientName =
     user?.displayName?.trim() ||
@@ -256,7 +257,10 @@ function PatientDashboardPage() {
           </div>
 
           <div className="shrink-0">
-            <Button leftIcon={<Upload size={18} />} disabled>
+            <Button
+              leftIcon={<Upload size={18} />}
+              onClick={() => setShowPrescriptionUpload(true)}
+            >
               Upload Prescription
             </Button>
           </div>
@@ -588,10 +592,14 @@ function PatientDashboardPage() {
                 Your emergency details have not been configured yet.
               </p>
 
-              <div className="flex items-center gap-2 text-xs font-semibold text-primary-600">
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.PATIENT_PROFILE)}
+                className="flex items-center gap-2 text-xs font-semibold text-primary-600 transition-colors hover:text-primary-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+              >
                 <UserRound size={15} />
                 Update details in My Profile
-              </div>
+              </button>
             </div>
           </Card>
         </section>
@@ -607,6 +615,20 @@ function PatientDashboardPage() {
           </p>
         </footer>
       </div>
+      {showPrescriptionUpload && (
+        <PrescriptionUploadDialog
+          onClose={() => setShowPrescriptionUpload(false)}
+          onSuccess={(mode) => {
+            setShowPrescriptionUpload(false)
+
+            if (mode === 'ai') {
+              navigate(ROUTES.PATIENT_AI)
+            } else {
+              navigate(ROUTES.PATIENT_REPORTS)
+            }
+          }}
+        />
+      )}
     </PageContainer>
   )
 }

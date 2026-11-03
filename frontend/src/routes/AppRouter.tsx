@@ -48,9 +48,35 @@ function AppRouter() {
               element={<PatientSectionPage section="health" />}
             />
 
+            {/* AI HEALTH ASSISTANT */}
             <Route
               path="ai-assistant"
               element={<PatientSectionPage section="ai" />}
+            />
+
+            <Route
+              path="ai-assistant/summary"
+              element={<PatientSectionPage section="ai-summary" />}
+            />
+
+            <Route
+              path="ai-assistant/chat"
+              element={<PatientSectionPage section="ai-chat" />}
+            />
+
+            <Route
+              path="ai-assistant/medicine"
+              element={<PatientSectionPage section="ai-medicine" />}
+            />
+
+            <Route
+              path="ai-assistant/symptoms"
+              element={<PatientSectionPage section="ai-symptoms" />}
+            />
+
+            <Route
+              path="ai-assistant/prescriptions"
+              element={<PatientSectionPage section="ai-prescriptions" />}
             />
 
             <Route

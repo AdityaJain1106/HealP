@@ -7,6 +7,9 @@ import testRoutes from './routes/testRoutes.js'
 import documentsRoutes from './routes/documentsRoutes.js'
 import geminiRoutes from './routes/geminiRoutes.js'
 import prescriptionRoutes from './routes/prescriptionRoutes.js'
+import medicineAssistantRoutes from './routes/medicineAssistantRoutes.js'
+import aiChatRoutes from './routes/aiChatRoutes.js'
+import symptomCheckerRoutes from './routes/symptomCheckerRoutes.js'
 
 dotenv.config()
 
@@ -19,6 +22,9 @@ app.use(cors({
 }))
 
 app.use(express.json())
+app.use('/api/symptom-checker', symptomCheckerRoutes)
+app.use('/api/ai-chat', aiChatRoutes)
+app.use('/api/medicine-assistant', medicineAssistantRoutes)
 app.use('/api/medical-summary', medicalSummaryRoutes)
 app.get('/api/health', (_req, res) => {
   res.status(200).json({

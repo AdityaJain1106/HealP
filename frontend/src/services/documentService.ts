@@ -1,5 +1,6 @@
 
 import { auth } from '../lib/firebase'
+import { createNotification } from './notificationService'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -107,6 +108,18 @@ export async function uploadMedicalDocument(
   const data = await handleResponse<{
     document: MedicalDocument
   }>(response)
+
+  // Create notification only after a successful upload.
+  try {
+    await createNotification({
+      title: 'Medical document uploaded',
+      message: `"${data.document.originalName}" has been uploaded successfully.`,
+      type: 'document',
+      route: '/patient/reports',
+    })
+  } catch (error) {
+    console.error('Document upload notification could not be created:', error)
+  }
 
   return data.document
 }

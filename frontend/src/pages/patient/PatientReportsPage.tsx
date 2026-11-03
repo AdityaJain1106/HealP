@@ -253,39 +253,7 @@ function PatientReportsPage() {
   )
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-7 pb-10">
-      {/* Page heading */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-600">
-            <FileCheck2 size={17} />
-            Digital Health Vault
-          </div>
-
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-            Reports & Documents
-          </h1>
-
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Securely store and manage your prescriptions, medical reports,
-            scans and healthcare documents in one place.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            setError('')
-            setSuccess('')
-            setShowUploadForm(true)
-          }}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-        >
-          <Plus size={18} />
-          Upload Document
-        </button>
-      </div>
-
+    <div className="mx-auto w-full max-w-7xl space-y-7 pb-10 pt-6">
       {/* Notifications */}
       {error && (
         <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -595,7 +563,7 @@ function PatientReportsPage() {
 
       {/* Document list */}
       <div>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-lg font-bold text-slate-900">
               Your Documents
@@ -605,6 +573,19 @@ function PatientReportsPage() {
               {filteredDocuments.length !== 1 ? 's' : ''} found
             </p>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setError('')
+              setSuccess('')
+              setShowUploadForm(true)
+            }}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          >
+            <Plus size={18} />
+            Upload Document
+          </button>
         </div>
 
         {loading ? (

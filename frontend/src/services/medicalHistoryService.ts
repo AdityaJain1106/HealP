@@ -12,6 +12,9 @@ import {
 } from 'firebase/firestore'
 
 import { db } from '../lib/firebase'
+import { createNotification } from './notificationService'
+
+import { ROUTES } from '../routes/routePaths'
 
 export type MedicalRecordType =
   | 'hospital_visit'
@@ -57,6 +60,18 @@ export async function addMedicalHistoryRecord(
     ...record,
     createdAt: serverTimestamp(),
   })
+
+  // Notification failure must not undo a successfully saved medical record.
+  try {
+    await createNotification({
+      title: 'Medical record added',
+      message: `"${record.title}" has been added to your medical history.`,
+      type: 'medical_record',
+      route: ROUTES.PATIENT_HEALTH,
+    })
+  } catch (error) {
+    console.error('Medical record notification could not be created:', error)
+  }
 
   return docRef.id
 }
