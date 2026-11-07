@@ -2,6 +2,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+
 import medicalSummaryRoutes from './routes/medicalSummaryRoutes.js'
 import testRoutes from './routes/testRoutes.js'
 import documentsRoutes from './routes/documentsRoutes.js'
@@ -10,6 +11,7 @@ import prescriptionRoutes from './routes/prescriptionRoutes.js'
 import medicineAssistantRoutes from './routes/medicineAssistantRoutes.js'
 import aiChatRoutes from './routes/aiChatRoutes.js'
 import symptomCheckerRoutes from './routes/symptomCheckerRoutes.js'
+import contactRoutes from './routes/contactRoutes.js'
 
 dotenv.config()
 
@@ -22,10 +24,17 @@ app.use(cors({
 }))
 
 app.use(express.json())
+
+// Public contact form
+app.use('/api/contact', contactRoutes)
+
+// AI routes
 app.use('/api/symptom-checker', symptomCheckerRoutes)
 app.use('/api/ai-chat', aiChatRoutes)
 app.use('/api/medicine-assistant', medicineAssistantRoutes)
 app.use('/api/medical-summary', medicalSummaryRoutes)
+
+// Health check
 app.get('/api/health', (_req, res) => {
   res.status(200).json({
     success: true,
@@ -33,6 +42,7 @@ app.get('/api/health', (_req, res) => {
   })
 })
 
+// Other routes
 app.use('/api/test', testRoutes)
 app.use('/api/documents', documentsRoutes)
 app.use('/api/gemini', geminiRoutes)

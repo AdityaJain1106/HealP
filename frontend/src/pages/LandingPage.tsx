@@ -1,5 +1,5 @@
 
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   HeartPulse,
@@ -103,8 +103,73 @@ const colorStyles: Record<string, string> = {
 
 function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [contactSubmitting, setContactSubmitting] = useState(false)
+  const [contactStatus, setContactStatus] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
+
+  const handleContactSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault()
+
+    if (contactSubmitting) return
+
+    const form = event.currentTarget
+    const formData = new FormData(form)
+
+    const payload = {
+      name: String(formData.get('name') ?? '').trim(),
+      email: String(formData.get('email') ?? '').trim(),
+      category: String(formData.get('category') ?? ''),
+      message: String(formData.get('message') ?? '').trim(),
+    }
+
+    setContactSubmitting(true)
+    setContactStatus(null)
+
+    try {
+      const apiBaseUrl = (
+        import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+      ).replace(/\/+$/, '')
+
+      const response = await fetch(`${apiBaseUrl}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const result = await response.json().catch(() => null)
+
+      if (!response.ok || !result?.success) {
+        throw new Error(
+          result?.message || 'Unable to send your message. Please try again.',
+        )
+      }
+
+      form.reset()
+      setContactStatus({
+        type: 'success',
+        message: result.message || 'Your message has been sent successfully!',
+      })
+    } catch (error) {
+      console.error('Contact form submission error:', error)
+      setContactStatus({
+        type: 'error',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Unable to send your message. Please try again later.',
+      })
+    } finally {
+      setContactSubmitting(false)
+    }
+  }
 
   return (
     <main className="min-h-screen overflow-x-clip bg-white text-slate-900">
@@ -598,34 +663,51 @@ function LandingPage() {
               </div>
             </div>
 
-            <form action="mailto:aj149413@gmail.com" method="post" encType="text/plain" className="rounded-2xl border border-slate-100 bg-white p-5 sm:p-7">
+            <form onSubmit={handleContactSubmit} className="rounded-2xl border border-slate-100 bg-white p-5 sm:p-7">
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="block text-sm font-semibold text-slate-700">
                   Full name
-                  <input name="Name" type="text" required placeholder="Your name" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" />
+                  <input name="name" type="text" required maxLength={80} placeholder="Your name" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
                   Email address
-                  <input name="Email" type="email" required placeholder="you@example.com" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" />
+                  <input name="email" type="email" required maxLength={254} placeholder="you@example.com" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" />
                 </label>
               </div>
               <label className="mt-5 block text-sm font-semibold text-slate-700">
                 What is this regarding?
-                <select name="Category" required defaultValue="" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal text-slate-700 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100">
+                <select name="category" required defaultValue="" className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal text-slate-700 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100">
                   <option value="" disabled>Select a topic</option>
-                  <option>General inquiry</option>
-                  <option>Suggestion</option>
-                  <option>Feature request</option>
-                  <option>Bug report</option>
-                  <option>Other</option>
+                  <option value="General Inquiry">General Inquiry</option>
+                  <option value="Suggestion">Suggestion</option>
+                  <option value="Feature Request">Feature Request</option>
+                  <option value="Bug Report">Bug Report</option>
+                  <option value="Other">Other</option>
                 </select>
               </label>
               <label className="mt-5 block text-sm font-semibold text-slate-700">
                 Your message
-                <textarea name="Message" required rows={5} placeholder="Tell us how we can help..." className="mt-2 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" />
+                <textarea name="message" required maxLength={2000} rows={5} placeholder="Tell us how we can help..." className="mt-2 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-normal leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100" />
               </label>
-              <button type="submit" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 sm:w-auto">
-                Send message <Send size={16} />
+              {contactStatus && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className={`mt-5 rounded-xl px-4 py-3 text-sm ${contactStatus.type === 'success'
+                      ? 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border border-red-200 bg-red-50 text-red-700'
+                    }`}
+                >
+                  {contactStatus.message}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={contactSubmitting}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {contactSubmitting ? 'Sending...' : 'Send message'}
+                <Send size={16} />
               </button>
               <p className="mt-4 text-xs leading-5 text-slate-400">
                 Please do not include sensitive medical information in this contact form.
