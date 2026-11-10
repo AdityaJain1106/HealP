@@ -34,5 +34,10 @@ export const ROUTES = {
   PATIENT_ACCESS_REQUESTS: '/patient/access-requests',
   PATIENT_ACCESS_MANAGEMENT: '/patient/access-management',
 
+  // Admin Portal
+  ADMIN_DASHBOARD: '/admin',
+  ADMIN_DOCTORS: '/admin/doctors',
+  ADMIN_USERS: '/admin/users',
+
   NOT_FOUND: '*',
 } as const

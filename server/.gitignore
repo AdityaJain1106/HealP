@@ -1,7 +1,31 @@
+# Dependencies
 node_modules/
+
+# TypeScript build output
 dist/
+
+# Environment files & secrets
 .env
 .env.*
+*.local
 !.env.example
+
+# Service account & credentials
+*service-account*.json
 firebase-service-account.json
+*credentials*.json
+*.pem
+*.key
+*.cert
+
+# Logs
+logs/
 *.log
+npm-debug.log*
+
+# Editor & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter,
   Routes,
@@ -22,6 +21,12 @@ import DoctorPrescriptionInboxPage from '../pages/doctor/DoctorPrescriptionInbox
 import DoctorPatientWorkspacePage from '../pages/doctor/DoctorPatientWorkspacePage'
 import DoctorAppointmentsPage from '../pages/doctor/DoctorAppointmentsPage'
 import DoctorProfilePage from '../pages/doctor/DoctorProfilePage'
+
+import AdminLayout from '../components/layout/AdminLayout'
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
+import AdminDoctorVerificationsPage from '../pages/admin/AdminDoctorVerificationsPage'
+import AdminUserManagementPage from '../pages/admin/AdminUserManagementPage'
+
 import PatientLayout from '../components/layout/PatientLayout'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
 import NotFoundPage from '../pages/NotFoundPage'
@@ -164,22 +169,43 @@ function AppRouter() {
             path={ROUTES.DOCTOR_PRESCRIPTION_INBOX}
             element={<DoctorPrescriptionInboxPage />}
           />
+
+          <Route
+            path={ROUTES.DOCTOR_PATIENT_WORKSPACE}
+            element={<DoctorPatientWorkspacePage />}
+          />
+
+          <Route
+            path={ROUTES.DOCTOR_APPOINTMENTS}
+            element={<DoctorAppointmentsPage />}
+          />
+
+          <Route
+            path={ROUTES.DOCTOR_PROFILE}
+            element={<DoctorProfilePage />}
+          />
         </Route>
 
-        <Route
-          path={ROUTES.DOCTOR_PATIENT_WORKSPACE}
-          element={<DoctorPatientWorkspacePage />}
-        />
-
-        <Route
-          path={ROUTES.DOCTOR_APPOINTMENTS}
-          element={<DoctorAppointmentsPage />}
-        />
-
-        <Route
-          path={ROUTES.DOCTOR_PROFILE}
-          element={<DoctorProfilePage />}
-        />
+        {/* PROTECTED ADMIN PORTAL */}
+        <Route element={<ProtectedRoute allowedRole="admin" />}>
+          <Route
+            path={ROUTES.ADMIN_DASHBOARD}
+            element={<AdminLayout />}
+          >
+            <Route
+              index
+              element={<AdminDashboardPage />}
+            />
+            <Route
+              path="doctors"
+              element={<AdminDoctorVerificationsPage />}
+            />
+            <Route
+              path="users"
+              element={<AdminUserManagementPage />}
+            />
+          </Route>
+        </Route>
 
         {/* 404 */}
         <Route

@@ -20,6 +20,7 @@ import doctorPrescriptionInboxRoutes from './routes/doctorPrescriptionInboxRoute
 import doctorProfileRoutes from './routes/doctorProfileRoutes.js'
 import patientAppointmentRoutes from './routes/patientAppointmentRoutes.js'
 import doctorAppointmentRoutes from './routes/doctorAppointmentRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
 
 dotenv.config()
 
@@ -67,6 +68,9 @@ app.use('/api/doctor', doctorPrescriptionRoutes)
 app.use('/api/doctor', doctorPrescriptionInboxRoutes)
 app.use('/api/doctor', doctorAppointmentRoutes)
 app.use('/api/doctor', doctorProfileRoutes)
+
+// Admin routes
+app.use('/api/admin', adminRoutes)
 
 app.listen(PORT, () => {
   console.log(`HealP server running on port ${PORT}`)

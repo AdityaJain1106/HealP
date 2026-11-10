@@ -15,12 +15,13 @@ import {
 import {
   doc,
   getDoc,
+  updateDoc,
 } from 'firebase/firestore'
 
 import { auth, db } from '../lib/firebase'
 
-export type UserRole = 'patient' | 'doctor'
-export type AccountStatus = 'active' | 'pending'
+export type UserRole = 'patient' | 'doctor' | 'admin'
+export type AccountStatus = 'active' | 'pending' | 'rejected' | 'suspended'
 
 interface AuthContextType {
   user: User | null
@@ -62,20 +63,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         if (userSnapshot.exists()) {
           const userData = userSnapshot.data()
+          const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || '')
+            .split(',')
+            .map((e: string) => e.trim().toLowerCase())
+            .filter(Boolean)
+
+          const userEmail = (firebaseUser.email || userData.email || '').toLowerCase()
+          const isDesignatedAdmin = Boolean(userEmail && adminEmails.includes(userEmail))
+
+          const activeRole = (isDesignatedAdmin ? 'admin' : userData.role) as UserRole
+
+          if (isDesignatedAdmin && userData.role !== 'admin') {
+            void updateDoc(userRef, { role: 'admin', accountStatus: 'active' }).catch(console.error)
+          }
 
           if (
-            userData.role === 'patient' ||
-            userData.role === 'doctor'
+            activeRole === 'patient' ||
+            activeRole === 'doctor' ||
+            activeRole === 'admin'
           ) {
-            setRole(userData.role)
+            setRole(activeRole)
 
-            // Existing patient accounts remain active.
-            // Doctors without an approval status remain pending.
-            const status =
-              userData.accountStatus ??
-              (userData.role === 'patient' ? 'active' : 'pending')
+            const defaultStatus =
+              activeRole === 'doctor' ? 'pending' : 'active'
+            const status = isDesignatedAdmin ? 'active' : (userData.accountStatus ?? defaultStatus)
 
-            if (status === 'active' || status === 'pending') {
+            if (
+              status === 'active' ||
+              status === 'pending' ||
+              status === 'rejected' ||
+              status === 'suspended'
+            ) {
               setAccountStatus(status)
             }
           }

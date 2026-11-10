@@ -13,7 +13,7 @@ import {
   User,
   Globe,
 } from 'lucide-react'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { ROUTES } from '../../routes/routePaths'
 import { db } from '../../lib/firebase'
@@ -41,15 +41,33 @@ function LoginPage() {
   const [error, setError] = useState('')
 
   const redirectUser = async (uid: string) => {
-    const userSnapshot = await getDoc(doc(db, 'users', uid))
+    const userRef = doc(db, 'users', uid)
+    const userSnapshot = await getDoc(userRef)
 
     if (!userSnapshot.exists()) {
       throw new Error('Your HealP profile could not be found.')
     }
 
-    const userRole = userSnapshot.data().role
+    const userData = userSnapshot.data()
+    const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || '')
+      .split(',')
+      .map((e: string) => e.trim().toLowerCase())
+      .filter(Boolean)
 
-    if (userRole === 'patient') {
+    const userEmail = (userData.email || '').toLowerCase()
+    const isDesignatedAdmin = Boolean(userEmail && adminEmails.includes(userEmail))
+
+    if (isDesignatedAdmin && userData.role !== 'admin') {
+      await updateDoc(userRef, { role: 'admin', accountStatus: 'active' }).catch(console.error)
+      navigate(ROUTES.ADMIN_DASHBOARD, { replace: true })
+      return
+    }
+
+    const userRole = userData.role
+
+    if (userRole === 'admin' || isDesignatedAdmin) {
+      navigate(ROUTES.ADMIN_DASHBOARD, { replace: true })
+    } else if (userRole === 'patient') {
       navigate(ROUTES.PATIENT_DASHBOARD, { replace: true })
     } else if (userRole === 'doctor') {
       navigate(ROUTES.DOCTOR_DASHBOARD, { replace: true })
