@@ -9,6 +9,7 @@ import {
     Save,
     Search,
     SlidersHorizontal,
+    Stethoscope,
     X,
 } from 'lucide-react'
 
@@ -47,6 +48,7 @@ const recordTypes: { value: MedicalRecordType; label: string }[] = [
     { value: 'vaccination', label: 'Vaccination' },
     { value: 'medicine', label: 'Medicine' },
     { value: 'follow_up', label: 'Follow-up' },
+    { value: 'prescription', label: 'Doctor Prescription' },
 ]
 
 const selectClass =
@@ -185,6 +187,11 @@ function PatientHealthPage() {
     }
 
     function openEditForm(record: MedicalHistoryRecord) {
+        if (record.source === 'doctor_prescription') {
+            setError('Doctor-issued prescriptions cannot be edited here.')
+            return
+        }
+
         setForm({
             type: record.type,
             title: record.title,
@@ -334,7 +341,9 @@ function PatientHealthPage() {
                                     }
                                     className={selectClass}
                                 >
-                                    {recordTypes.map((type) => (
+                                    {recordTypes
+                                        .filter((type) => type.value !== 'prescription')
+                                        .map((type) => (
                                         <option key={type.value} value={type.value}>
                                             {type.label}
                                         </option>
@@ -696,6 +705,13 @@ function PatientHealthPage() {
                                                         (type) => type.value === record.type
                                                     )?.label || record.type}
                                                 </span>
+
+                                                {record.source === 'doctor_prescription' && (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                                                        <Stethoscope size={13} />
+                                                        Doctor issued
+                                                    </span>
+                                                )}
                                             </div>
 
                                             <p className="mt-1 text-xs font-medium text-slate-500">
@@ -708,14 +724,16 @@ function PatientHealthPage() {
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => openEditForm(record)}
-                                        className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                                    >
-                                        <Edit2 size={15} />
-                                        Edit
-                                    </button>
+                                    {record.source !== 'doctor_prescription' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => openEditForm(record)}
+                                            className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                                        >
+                                            <Edit2 size={15} />
+                                            Edit
+                                        </button>
+                                    )}
                                 </div>
 
                                 {(record.hospital ||

@@ -7,13 +7,24 @@ import {
 
 import LandingPage from '../pages/LandingPage'
 import LoginPage from '../pages/auth/LoginPage'
+
 import PatientDashboardPage from '../pages/patient/PatientDashboardPage'
 import PatientSectionPage from '../pages/patient/PatientSectionPage'
-import DoctorDashboardPage from '../pages/doctor/DoctorDashboardPage'
-import NotFoundPage from '../pages/NotFoundPage'
+import PatientDoctorPrescriptionsPage from '../pages/patient/PatientDoctorPrescriptionsPage'
+import PatientAccessRequestsPage from '../pages/patient/PatientAccessRequestsPage'
+import PatientAccessManagementPage from '../pages/patient/PatientAccessManagementPage'
+import PatientAppointmentsPage from '../pages/patient/PatientAppointmentsPage'
 
+import DoctorDashboardPage from '../pages/doctor/DoctorDashboardPage'
+import DoctorPatientSearchPage from '../pages/doctor/DoctorPatientSearchPage'
+import DoctorMyPatientsPage from '../pages/doctor/DoctorMyPatientsPage'
+import DoctorPrescriptionInboxPage from '../pages/doctor/DoctorPrescriptionInboxPage'
+import DoctorPatientWorkspacePage from '../pages/doctor/DoctorPatientWorkspacePage'
+import DoctorAppointmentsPage from '../pages/doctor/DoctorAppointmentsPage'
+import DoctorProfilePage from '../pages/doctor/DoctorProfilePage'
 import PatientLayout from '../components/layout/PatientLayout'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
+import NotFoundPage from '../pages/NotFoundPage'
 
 import { ROUTES } from './routePaths'
 
@@ -44,8 +55,28 @@ function AppRouter() {
             />
 
             <Route
+              path={ROUTES.PATIENT_ACCESS_MANAGEMENT}
+              element={<PatientAccessManagementPage />}
+            />
+
+            <Route
+              path="access-requests"
+              element={<PatientAccessRequestsPage />}
+            />
+
+            <Route
+              path="appointments"
+              element={<PatientAppointmentsPage />}
+            />
+
+            <Route
               path="my-health"
               element={<PatientSectionPage section="health" />}
+            />
+
+            <Route
+              path="doctor-prescriptions"
+              element={<PatientDoctorPrescriptionsPage />}
             />
 
             {/* AI HEALTH ASSISTANT */}
@@ -118,7 +149,37 @@ function AppRouter() {
             path={ROUTES.DOCTOR_DASHBOARD}
             element={<DoctorDashboardPage />}
           />
+
+          <Route
+            path={ROUTES.DOCTOR_PATIENT_SEARCH}
+            element={<DoctorPatientSearchPage />}
+          />
+
+          <Route
+            path={ROUTES.DOCTOR_MY_PATIENTS}
+            element={<DoctorMyPatientsPage />}
+          />
+
+          <Route
+            path={ROUTES.DOCTOR_PRESCRIPTION_INBOX}
+            element={<DoctorPrescriptionInboxPage />}
+          />
         </Route>
+
+        <Route
+          path={ROUTES.DOCTOR_PATIENT_WORKSPACE}
+          element={<DoctorPatientWorkspacePage />}
+        />
+
+        <Route
+          path={ROUTES.DOCTOR_APPOINTMENTS}
+          element={<DoctorAppointmentsPage />}
+        />
+
+        <Route
+          path={ROUTES.DOCTOR_PROFILE}
+          element={<DoctorProfilePage />}
+        />
 
         {/* 404 */}
         <Route

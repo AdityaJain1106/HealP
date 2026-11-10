@@ -1,10 +1,10 @@
-
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
 
   PATIENT_DASHBOARD: '/patient',
   PATIENT_HEALTH: '/patient/my-health',
+  PATIENT_DOCTOR_PRESCRIPTIONS: '/patient/doctor-prescriptions',
 
   // AI Health Assistant
   PATIENT_AI: '/patient/ai-assistant',
@@ -21,8 +21,18 @@ export const ROUTES = {
   PATIENT_PHARMACIES: '/patient/services/pharmacies',
   PATIENT_BLOOD_BANKS: '/patient/services/blood-banks',
   PATIENT_DIAGNOSTICS: '/patient/services/diagnostic-centers',
+  PATIENT_APPOINTMENTS: '/patient/appointments',
 
   DOCTOR_DASHBOARD: '/doctor',
+  DOCTOR_PROFILE: '/doctor/profile',
+  DOCTOR_PATIENT_SEARCH: '/doctor/patients/search',
+  DOCTOR_MY_PATIENTS: '/doctor/my-patients',
+  DOCTOR_PATIENT_WORKSPACE: '/doctor/patients/:patientId',
+  DOCTOR_PRESCRIPTION_INBOX: '/doctor/prescriptions/inbox',
+  DOCTOR_APPOINTMENTS: '/doctor/appointments',
+
+  PATIENT_ACCESS_REQUESTS: '/patient/access-requests',
+  PATIENT_ACCESS_MANAGEMENT: '/patient/access-management',
 
   NOT_FOUND: '*',
 } as const

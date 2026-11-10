@@ -1,11 +1,13 @@
 
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
-
+import { useLocation } from 'react-router-dom'
 import PatientSidebar from './PatientSidebar'
 import PatientTopbar from './PatientTopbar'
 
 function PatientLayout() {
+  const location = useLocation()
+  const isPatientHome = location.pathname === '/patient'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const closeMobileMenu = () => {
@@ -93,7 +95,12 @@ function PatientLayout() {
           onMenuClick={openMobileMenu}
         />
 
-        <main className="relative z-0 min-w-0">
+        <main
+          className={`relative z-0 min-w-0 ${isPatientHome
+              ? ''
+              : 'px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10'
+            }`}
+        >
           <Outlet />
         </main>
 

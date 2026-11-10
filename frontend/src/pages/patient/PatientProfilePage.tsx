@@ -37,6 +37,7 @@ const sectionClass = 'rounded-2xl border border-slate-200 bg-white p-6 shadow-sm
 
 export default function PatientProfilePage() {
   const { user } = useAuth()
+  console.log('AUTHENTICATED PATIENT UID:', user?.uid)
   const [profile, setProfile] = useState<PatientProfile | null>(null)
   const [profileExists, setProfileExists] = useState(false)
   const [loading, setLoading] = useState(true)

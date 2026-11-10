@@ -2,7 +2,6 @@ import {
   HeartPulse,
   Activity,
   Bot,
-  FileText,
   UserRound,
   CalendarDays,
   Hospital,
@@ -79,49 +78,9 @@ function PatientDashboardPage() {
     year: 'numeric',
   }).format(new Date())
 
-  const healthStats = [
-    {
-      title: 'Medical Documents',
-      value: '—',
-      icon: FileText,
-      color: 'text-blue-600 bg-blue-50',
-      status: 'Records',
-      variant: 'info' as const,
-    },
-    {
-      title: 'Health Records',
-      value: '—',
-      icon: Activity,
-      color: 'text-emerald-600 bg-emerald-50',
-      status: 'Health',
-      variant: 'success' as const,
-    },
-    {
-      title: 'Current Medicines',
-      value: '—',
-      icon: Pill,
-      color: 'text-purple-600 bg-purple-50',
-      status: 'Medication',
-      variant: 'primary' as const,
-    },
-    {
-      title: 'Follow-up Appointments',
-      value: '—',
-      icon: CalendarDays,
-      color: 'text-amber-600 bg-amber-50',
-      status: 'Upcoming',
-      variant: 'warning' as const,
-    },
-  ]
+  
 
   const quickAccess = [
-    {
-      title: 'Upload Reports',
-      description: 'Store your medical reports.',
-      icon: Upload,
-      color: 'text-blue-600 bg-blue-50',
-      path: ROUTES.PATIENT_REPORTS,
-    },
     {
       title: 'AI Health Assistant',
       description: 'Get AI-powered health assistance.',
@@ -135,6 +94,13 @@ function PatientDashboardPage() {
       icon: Activity,
       color: 'text-emerald-600 bg-emerald-50',
       path: ROUTES.PATIENT_HEALTH,
+    },
+    {
+      title: 'Appointments',
+      description: 'Book appointments with doctors who have access to your medical history.',
+      icon: CalendarDays,
+      color: 'text-amber-600 bg-amber-50',
+      path: '/patient/appointments',
     },
     {
       title: 'My Profile',
@@ -263,54 +229,6 @@ function PatientDashboardPage() {
             >
               Upload Prescription
             </Button>
-          </div>
-        </section>
-
-        {/* HEALTH OVERVIEW */}
-
-        <section className="mb-8">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Health Overview
-            </h2>
-
-            <Badge variant="success" className="w-fit">
-              Personal Health Vault
-            </Badge>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {healthStats.map((stat) => {
-              const Icon = stat.icon
-
-              return (
-                <Card
-                  key={stat.title}
-                  hoverable
-                  className="flex min-w-0 flex-row items-center gap-3 p-4 sm:block sm:p-5"
-                >
-                  <div className={`shrink-0 rounded-xl p-3 ${stat.color}`}>
-                    <Icon size={22} />
-                  </div>
-
-                  <div className="min-w-0 flex-1 sm:mt-5">
-                    <p className="text-xl font-bold text-slate-900 sm:text-2xl">
-                      {stat.value}
-                    </p>
-
-                    <p className="mt-1 break-words text-xs text-slate-500 sm:text-sm">
-                      {stat.title}
-                    </p>
-                  </div>
-
-                  <div className="shrink-0 sm:absolute sm:right-5 sm:top-5">
-                    <Badge variant={stat.variant}>
-                      {stat.status}
-                    </Badge>
-                  </div>
-                </Card>
-              )
-            })}
           </div>
         </section>
 

@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 
+import doctorAccessRoutes from './routes/doctorAccessRoutes.js'
 import medicalSummaryRoutes from './routes/medicalSummaryRoutes.js'
 import testRoutes from './routes/testRoutes.js'
 import documentsRoutes from './routes/documentsRoutes.js'
@@ -12,6 +13,13 @@ import medicineAssistantRoutes from './routes/medicineAssistantRoutes.js'
 import aiChatRoutes from './routes/aiChatRoutes.js'
 import symptomCheckerRoutes from './routes/symptomCheckerRoutes.js'
 import contactRoutes from './routes/contactRoutes.js'
+import patientAccessRoutes from './routes/patientAccessRoutes.js'
+import doctorPrescriptionRoutes from './routes/doctorPrescriptionRoutes.js'
+import patientPrescriptionRoutes from './routes/patientPrescriptionRoutes.js'
+import doctorPrescriptionInboxRoutes from './routes/doctorPrescriptionInboxRoutes.js'
+import doctorProfileRoutes from './routes/doctorProfileRoutes.js'
+import patientAppointmentRoutes from './routes/patientAppointmentRoutes.js'
+import doctorAppointmentRoutes from './routes/doctorAppointmentRoutes.js'
 
 dotenv.config()
 
@@ -47,6 +55,18 @@ app.use('/api/test', testRoutes)
 app.use('/api/documents', documentsRoutes)
 app.use('/api/gemini', geminiRoutes)
 app.use('/api/prescriptions', prescriptionRoutes)
+
+// Patient routes
+app.use('/api/patient', patientAccessRoutes)
+app.use('/api/patient', patientPrescriptionRoutes)
+app.use('/api/patient', patientAppointmentRoutes)
+
+// Doctor routes
+app.use('/api/doctor', doctorAccessRoutes)
+app.use('/api/doctor', doctorPrescriptionRoutes)
+app.use('/api/doctor', doctorPrescriptionInboxRoutes)
+app.use('/api/doctor', doctorAppointmentRoutes)
+app.use('/api/doctor', doctorProfileRoutes)
 
 app.listen(PORT, () => {
   console.log(`HealP server running on port ${PORT}`)

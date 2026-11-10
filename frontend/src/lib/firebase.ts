@@ -31,4 +31,9 @@ export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const storage = getStorage(app)
 
+// TEMPORARY: Expose Firebase Auth for local API testing.
+if (import.meta.env.DEV) {
+  ;(window as Window & { __HEALP_AUTH__?: typeof auth }).__HEALP_AUTH__ = auth
+}
+
 export default app

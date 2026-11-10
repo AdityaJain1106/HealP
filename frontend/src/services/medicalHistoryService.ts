@@ -3,6 +3,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -13,7 +14,6 @@ import {
 
 import { db } from '../lib/firebase'
 import { createNotification } from './notificationService'
-
 import { ROUTES } from '../routes/routePaths'
 
 export type MedicalRecordType =
@@ -25,6 +25,7 @@ export type MedicalRecordType =
   | 'vaccination'
   | 'medicine'
   | 'follow_up'
+  | 'prescription'
 
 export interface MedicalHistoryRecord {
   id?: string
@@ -37,6 +38,12 @@ export interface MedicalHistoryRecord {
   diagnosis?: string
   medicines?: string[]
   notes?: string
+
+  // Doctor-authored prescription reference fields
+  source?: 'doctor_prescription'
+  prescriptionId?: string
+  createdBy?: string
+
   createdAt?: Timestamp | null
   updatedAt?: Timestamp | null
 }
@@ -61,7 +68,6 @@ export async function addMedicalHistoryRecord(
     createdAt: serverTimestamp(),
   })
 
-  // Notification failure must not undo a successfully saved medical record.
   try {
     await createNotification({
       title: 'Medical record added',
@@ -106,6 +112,19 @@ export async function updateMedicalHistoryRecord(
     'medicalHistory',
     recordId
   )
+
+  // Prevent the patient interface from editing doctor-authored entries.
+  const existingRecord = await getDoc(recordRef)
+
+  if (!existingRecord.exists()) {
+    throw new Error('Medical record not found.')
+  }
+
+  if (existingRecord.data().source === 'doctor_prescription') {
+    throw new Error(
+      'Doctor-authored prescriptions cannot be edited by patients.'
+    )
+  }
 
   await updateDoc(recordRef, {
     ...record,

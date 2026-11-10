@@ -16,6 +16,7 @@ import {
   Pill,
   Stethoscope,
   FileSearch,
+  CalendarDays,
 } from 'lucide-react'
 
 import { ROUTES } from '../../routes/routePaths'
@@ -38,9 +39,24 @@ const navigation = [
     path: ROUTES.PATIENT_HEALTH,
   },
   {
+    label: 'Doctor Prescriptions',
+    icon: Pill,
+    path: ROUTES.PATIENT_DOCTOR_PRESCRIPTIONS,
+  },
+  {
     label: 'Reports & Documents',
     icon: FileText,
     path: ROUTES.PATIENT_REPORTS,
+  },
+  {
+    label: 'Access & Permissions',
+    icon: ShieldCheck,
+    path: ROUTES.PATIENT_ACCESS_MANAGEMENT,
+  },
+  {
+    label: 'Appointments',
+    icon: CalendarDays,
+    path: ROUTES.PATIENT_APPOINTMENTS,
   },
 ]
 
