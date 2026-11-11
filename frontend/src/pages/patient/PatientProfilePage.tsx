@@ -6,6 +6,7 @@ import {
   updatePatientProfile,
 } from '../../services/patientProfileService'
 import type { PatientProfile } from '../../services/patientProfileService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function createEmptyProfile(uid: string, name: string, email: string): PatientProfile {
   return {
@@ -36,6 +37,7 @@ const labelClass = 'mb-2 block text-sm font-medium text-slate-700'
 const sectionClass = 'rounded-2xl border border-slate-200 bg-white p-6 shadow-sm'
 
 export default function PatientProfilePage() {
+  usePageTitle('My Profile')
   const { user } = useAuth()
   console.log('AUTHENTICATED PATIENT UID:', user?.uid)
   const [profile, setProfile] = useState<PatientProfile | null>(null)

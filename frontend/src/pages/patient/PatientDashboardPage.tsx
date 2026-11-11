@@ -32,8 +32,10 @@ import Badge from '../../components/common/Badge'
 import Button from '../../components/common/Button'
 import PageContainer from '../../components/common/PageContainer'
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function PatientDashboardPage() {
+  usePageTitle('Patient Dashboard')
   const navigate = useNavigate()
   const { user } = useAuth()
   const [showPrescriptionUpload, setShowPrescriptionUpload] = useState(false)

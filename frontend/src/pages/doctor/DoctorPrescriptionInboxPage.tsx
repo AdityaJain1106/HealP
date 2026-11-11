@@ -35,6 +35,7 @@ import type {
   DoctorPrescriptionVersion,
   PrescriptionDetails,
 } from '../../services/patientPrescriptionService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 interface AmendDraft {
   diagnosis: string
@@ -98,6 +99,7 @@ const detailFields: {
   ]
 
 export default function DoctorPrescriptionInboxPage() {
+  usePageTitle('Prescription Inbox')
   const [prescriptions, setPrescriptions] = useState<DoctorPrescription[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -227,6 +229,7 @@ export default function DoctorPrescriptionInboxPage() {
   }
 
   const startEditing = (prescription: DoctorPrescription) => {
+  usePageTitle('Prescription Inbox')
     const id = prescription.prescriptionId
 
     setDrafts((previous) => ({
@@ -243,6 +246,7 @@ export default function DoctorPrescriptionInboxPage() {
     id: string,
     changes: Partial<AmendDraft>
   ) => {
+  usePageTitle('Prescription Inbox')
     setDrafts((previous) => ({
       ...previous,
       [id]: {
@@ -257,6 +261,7 @@ export default function DoctorPrescriptionInboxPage() {
     index: number,
     changes: Partial<DoctorPrescriptionMedicine>
   ) => {
+  usePageTitle('Prescription Inbox')
     const draft = drafts[id]
     if (!draft) return
 
@@ -276,6 +281,7 @@ export default function DoctorPrescriptionInboxPage() {
     key: keyof PrescriptionDetails,
     value: string
   ) => {
+  usePageTitle('Prescription Inbox')
     const draft = drafts[id]
     if (!draft) return
 

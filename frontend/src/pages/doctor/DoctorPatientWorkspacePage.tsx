@@ -29,6 +29,7 @@ import {
   type DoctorPatientDocument,
   type DoctorPatientPrescription,
 } from '../../services/doctorPatientService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 type WorkspaceTab =
   | 'overview'
@@ -564,6 +565,7 @@ function DoctorPatientWorkspacePage() {
     field: 'name' | keyof DoctorPrescriptionMedicine['prescriptionDetails'],
     value: string
   ) => {
+  usePageTitle('Patient Workspace')
     setMedicines((current) =>
       current.map((medicine, medicineIndex) => {
         if (medicineIndex !== index) return medicine
@@ -584,6 +586,7 @@ function DoctorPatientWorkspacePage() {
   }
 
   const addMedicine = () => {
+  usePageTitle('Patient Workspace')
     setMedicines((current) => [
       ...current,
       {
@@ -601,6 +604,7 @@ function DoctorPatientWorkspacePage() {
   }
 
   const removeMedicine = (index: number) => {
+  usePageTitle('Patient Workspace')
     setMedicines((current) =>
       current.length > 1
         ? current.filter((_, medicineIndex) => medicineIndex !== index)

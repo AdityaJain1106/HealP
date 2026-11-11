@@ -1,4 +1,5 @@
 
+import { usePageTitle } from '../../hooks/usePageTitle'
 import { HeartPulse } from 'lucide-react'
 
 import Badge from '../../components/common/Badge'
@@ -55,6 +56,23 @@ const healthcareSectionConfig = {
 }
 
 function PatientSectionPage({ section }: PatientSectionPageProps) {
+  const sectionTitles: Record<PatientSection, string> = {
+    health: 'My Health',
+    ai: 'AI Health Assistant',
+    'ai-summary': 'AI Medical Summary',
+    'ai-chat': 'AI Chat Assistant',
+    'ai-medicine': 'Medicine Assistant',
+    'ai-symptoms': 'Symptom Checker',
+    'ai-prescriptions': 'Prescription Reader',
+    reports: 'Reports & Documents',
+    profile: 'My Profile',
+    hospitals: 'Nearby Hospitals',
+    pharmacies: 'Nearby Pharmacies',
+    bloodBanks: 'Nearby Blood Banks',
+    diagnostics: 'Diagnostic Centers',
+  }
+  usePageTitle(sectionTitles[section] ?? 'Patient Portal')
+
   // Patient profile
   if (section === 'profile') {
     return <PatientProfilePage />

@@ -18,8 +18,10 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { logoutUser } from '../../services/authService'
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function DoctorDashboardPage() {
+  usePageTitle('Doctor Dashboard')
   const navigate = useNavigate()
   const { user } = useAuth()
 

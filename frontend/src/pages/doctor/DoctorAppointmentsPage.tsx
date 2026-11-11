@@ -25,6 +25,7 @@ import type {
   PatientAppointment,
   AppointmentStatus,
 } from '../../services/patientAppointmentService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 type StatusFilter = 'all' | AppointmentStatus
 
@@ -126,6 +127,7 @@ function DoctorAppointmentsPage() {
   }
 
   const formatDate = (date: string) => {
+  usePageTitle('Appointments')
     const parsed = new Date(`${date}T00:00:00`)
 
     if (Number.isNaN(parsed.getTime())) return date
@@ -138,6 +140,7 @@ function DoctorAppointmentsPage() {
   }
 
   const formatTime = (time: string) => {
+  usePageTitle('Appointments')
     const [hours, minutes] = time.split(':').map(Number)
 
     if (
@@ -162,6 +165,7 @@ function DoctorAppointmentsPage() {
   }
 
   const getStatusStyle = (status: AppointmentStatus) => {
+  usePageTitle('Appointments')
     switch (status) {
       case 'accepted':
         return 'bg-emerald-50 text-emerald-700 border-emerald-200'

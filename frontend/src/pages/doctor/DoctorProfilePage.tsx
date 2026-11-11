@@ -30,6 +30,7 @@ import {
 } from '../../services/doctorProfileService'
 import { logoutUser } from '../../services/authService'
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const specializationsList = [
   'General Physician',
@@ -58,6 +59,7 @@ const labelClass = 'mb-1.5 flex items-center gap-1.5 text-sm font-medium text-sl
 const sectionClass = 'rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm'
 
 export default function DoctorProfilePage() {
+  usePageTitle('Doctor Profile')
   const navigate = useNavigate()
   const { user } = useAuth()
 
@@ -106,6 +108,7 @@ export default function DoctorProfilePage() {
   }, [user])
 
   const handleFieldChange = (field: keyof UpdateDoctorProfileInput, value: string) => {
+  usePageTitle('Doctor Profile')
     if (!profile) return
     setProfile({
       ...profile,
@@ -116,6 +119,7 @@ export default function DoctorProfilePage() {
   }
 
   const handleReset = () => {
+  usePageTitle('Doctor Profile')
     if (initialProfile) {
       setProfile({ ...initialProfile })
       setError('')

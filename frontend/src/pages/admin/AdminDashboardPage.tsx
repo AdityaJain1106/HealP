@@ -23,8 +23,10 @@ import {
   type ManagedUser,
 } from '../../services/adminService'
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 export default function AdminDashboardPage() {
+  usePageTitle('Admin Dashboard')
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [pendingDoctors, setPendingDoctors] = useState<ManagedUser[]>([])
   const [loading, setLoading] = useState(true)
@@ -72,6 +74,7 @@ export default function AdminDashboardPage() {
   }, [])
 
   const handleOpenVerifyModal = (doctor: ManagedUser, action: 'active' | 'rejected') => {
+  usePageTitle('Admin Dashboard')
     setActiveDoctor(doctor)
     setVerificationAction(action)
     setVerificationNotes(

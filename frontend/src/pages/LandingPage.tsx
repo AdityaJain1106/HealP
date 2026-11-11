@@ -28,6 +28,7 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import { ROUTES } from '../routes/routePaths'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const features = [
   {
@@ -102,6 +103,7 @@ const colorStyles: Record<string, string> = {
 }
 
 function LandingPage() {
+  usePageTitle('')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [contactSubmitting, setContactSubmitting] = useState(false)
   const [contactStatus, setContactStatus] = useState<{

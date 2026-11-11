@@ -37,6 +37,7 @@ import type {
   DoctorAccessRequest,
   DoctorAccessPermission,
 } from '../../services/patientAccessService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const permissionOptions: {
   value: DoctorAccessPermission
@@ -118,6 +119,7 @@ function formatDate(
 }
 
 function PatientAccessManagementPage() {
+  usePageTitle('Access & Permissions')
   const [accesses, setAccesses] = useState<PatientDoctorAccess[]>([])
   const [requests, setRequests] = useState<DoctorAccessRequest[]>([])
   const [selectedPermissions, setSelectedPermissions] = useState<

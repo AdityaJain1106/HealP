@@ -23,10 +23,12 @@ import {
   signInWithGoogle,
 } from '../../services/authService'
 import type { UserRole } from '../../context/AuthContext'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 type AuthMode = 'login' | 'signup'
 
 function LoginPage() {
+  usePageTitle('Sign In')
   const navigate = useNavigate()
 
   const [mode, setMode] = useState<AuthMode>('login')

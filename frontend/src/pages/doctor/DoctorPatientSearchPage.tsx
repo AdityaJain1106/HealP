@@ -30,6 +30,7 @@ import type {
   DoctorAccessPermission,
   DoctorAccessRequest,
 } from '../../services/doctorPatientService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const permissionOptions: {
   value: DoctorAccessPermission
@@ -71,6 +72,7 @@ const permissionOptions: {
 ]
 
 function DoctorPatientSearchPage() {
+  usePageTitle('Patient Search')
   const [searchTerm, setSearchTerm] = useState('')
   const [patient, setPatient] =
     useState<DoctorPatientSearchResult | null>(null)

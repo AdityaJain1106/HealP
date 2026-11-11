@@ -29,6 +29,7 @@ import type {
   MedicalDocument,
   DocumentCategory,
 } from '../../services/documentService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const categories: { value: DocumentCategory; label: string }[] = [
   { value: 'prescription', label: 'Prescriptions' },
@@ -66,6 +67,7 @@ function getCategoryLabel(category: DocumentCategory) {
 }
 
 function PatientReportsPage() {
+  usePageTitle('Reports & Documents')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [documents, setDocuments] = useState<MedicalDocument[]>([])

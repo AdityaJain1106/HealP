@@ -27,8 +27,10 @@ import {
   type UserDetailsResponse,
 } from '../../services/adminService'
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 export default function AdminUserManagementPage() {
+  usePageTitle('Account Directory')
   const [users, setUsers] = useState<ManagedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -88,6 +90,7 @@ export default function AdminUserManagementPage() {
   }, [roleFilter, statusFilter])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
+  usePageTitle('Account Directory')
     e.preventDefault()
     void loadUsers()
   }

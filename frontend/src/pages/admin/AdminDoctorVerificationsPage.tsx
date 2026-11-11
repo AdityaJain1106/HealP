@@ -21,10 +21,12 @@ import {
   type ManagedUser,
 } from '../../services/adminService'
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 type DoctorFilterTab = 'pending' | 'active' | 'rejected' | 'all'
 
 export default function AdminDoctorVerificationsPage() {
+  usePageTitle('Doctor Verifications')
   const [doctors, setDoctors] = useState<ManagedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -91,6 +93,7 @@ export default function AdminDoctorVerificationsPage() {
     doctor: ManagedUser,
     action: 'active' | 'rejected'
   ) => {
+  usePageTitle('Doctor Verifications')
     setSelectedDoctor(doctor)
     setDecision(action)
     setNotes(

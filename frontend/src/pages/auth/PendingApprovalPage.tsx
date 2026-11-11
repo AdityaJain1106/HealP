@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Clock, ShieldCheck, LogOut, HeartPulse, XCircle } from 'lucide-react'
 
 import { logoutUser } from '../../services/authService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 interface PendingApprovalPageProps {
   isRejected?: boolean
@@ -12,6 +13,7 @@ function PendingApprovalPage({
   isRejected = false,
   rejectionReason,
 }: PendingApprovalPageProps) {
+  usePageTitle('Verification Pending')
   const navigate = useNavigate()
 
   const handleLogout = async () => {

@@ -24,6 +24,7 @@ import type {
 } from '../../services/doctorPatientService'
 
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const permissionLabels: Record<DoctorAccessPermission, string> = {
   profile: 'Patient Profile',
@@ -34,6 +35,7 @@ const permissionLabels: Record<DoctorAccessPermission, string> = {
 }
 
 function DoctorMyPatientsPage() {
+  usePageTitle('My Patients')
   const [patients, setPatients] = useState<DoctorApprovedPatient[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)

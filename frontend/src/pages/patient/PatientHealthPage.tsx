@@ -21,6 +21,7 @@ import {
     type MedicalHistoryRecord,
     type MedicalRecordType,
 } from '../../services/medicalHistoryService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 type MedicalHistoryInput = Omit<
     MedicalHistoryRecord,
@@ -68,6 +69,7 @@ function formatDate(date: string) {
 }
 
 function PatientHealthPage() {
+  usePageTitle('My Health')
     const { user } = useAuth()
 
     const [records, setRecords] = useState<MedicalHistoryRecord[]>([])

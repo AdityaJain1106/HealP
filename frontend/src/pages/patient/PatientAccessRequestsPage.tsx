@@ -32,6 +32,7 @@ import type {
 } from '../../services/patientAccessService'
 
 import { ROUTES } from '../../routes/routePaths'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const permissionOptions: {
   value: DoctorAccessPermission
@@ -101,6 +102,7 @@ function formatDate(
 }
 
 function PatientAccessRequestsPage() {
+  usePageTitle('Access Requests')
   const navigate = useNavigate()
 
   const [requests, setRequests] = useState<DoctorAccessRequest[]>([])

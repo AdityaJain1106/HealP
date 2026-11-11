@@ -29,6 +29,7 @@ import {
 import type {
   PatientAppointment,
 } from '../../services/patientAppointmentService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function getLocalDate(): string {
   const now = new Date()
@@ -63,6 +64,7 @@ function getStatusStyle(status: PatientAppointment['status']) {
 }
 
 function PatientAppointmentsPage() {
+  usePageTitle('Appointments')
   const [accesses, setAccesses] = useState<PatientDoctorAccess[]>([])
   const [appointments, setAppointments] = useState<PatientAppointment[]>([])
 

@@ -28,6 +28,7 @@ import type {
   DoctorPrescription,
   DoctorPrescriptionVersion,
 } from '../../services/patientPrescriptionService'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const statusConfig = {
   pending_patient_review: {
@@ -118,6 +119,7 @@ function DetailItem({
 }
 
 function PatientDoctorPrescriptionsPage() {
+  usePageTitle('Doctor Prescriptions')
   const [prescriptions, setPrescriptions] = useState<DoctorPrescription[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
